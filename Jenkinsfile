@@ -1,20 +1,26 @@
 pipeline{
     agent any
-
-    tools {
-         maven 'maven'
-         jdk 'java'
+    tools{
+        maven 'Maven'
     }
-
     stages{
-        stage('checkout'){
+        stage("SCM Checkout"){
             steps{
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'github access', url: 'https://github.com/sreenivas449/java-hello-world-with-maven.git']]])
+            git 'https://github.com/kiranbuddi/java-hello-world-with-maven.git'
             }
         }
-        stage('build'){
+        
+        stage("Sonar Scan"){
             steps{
-               bat 'mvn package'
+                withSonarQubeEnv('sonarqube') {
+                sh 'mvn sonar:sonar'
+                    }
+            }
+        }
+        
+        stage("Maven Build"){
+            steps{
+                sh 'mvn clean package'
             }
         }
     }
